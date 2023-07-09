@@ -1,0 +1,45 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    placeholder: "placekitten.com"
+    width: 400
+    height: 600
+    #prefix: djoo_is_da_man
+
+  tasks:
+    - name: Install httpd
+      dnf:
+        name: httpd
+        state: latest
+
+    - name: copying index.html to right place
+      template:
+        dest: /var/www/html/index.html
+        src: index.html.j2
+        mode: 0755
+
+    - name: httpd service enabled
+      service:
+        name: httpd
+        enabled: true
+        state: started
+
+    - name: install firewalld
+      dnf:
+        name: firewalld
+        state: latest
+
+    - name: firewalld service is started
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+
+    - name: open firewall
+      ansible.posix.firewalld:
+        service: http
+        state: enabled
+        immediate: true
+        permanent: true
